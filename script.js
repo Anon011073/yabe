@@ -71,66 +71,60 @@ document.addEventListener('DOMContentLoaded', function() {
     // Render categorized bookmarks
     chrome.bookmarks.getSubTree('1', (results) => {
         if (chrome.runtime.lastError || !results || results.length === 0) {
-          console.error("Could not access the Bookmarks Bar: " + (chrome.runtime.lastError?.message || 'Unknown error'));
-          return;
+            console.error("Could not access the Bookmarks Bar: " + (chrome.runtime.lastError?.message || 'Unknown error'));
+            return;
         }
 
         const bookmarksBarNode = results[0];
         const appFolder = bookmarksBarNode.children.find(node => node.title === DASHBOARD_FOLDER_NAME);
         if (!appFolder || !appFolder.children) return;
 
-        const processCategory = (bookmarks, title, container) => {
-            bookmarks.slice(0, BOOKMARK_LIMIT).forEach(bookmark => {
-                container.appendChild(createBookmarkItem(bookmark, false));
-            });
+        const renderCategoryColumn = (bookmarks, title) => {
+            const column = document.createElement('div');
+            column.className = 'category-column';
 
-            if (bookmarks.length > BOOKMARK_LIMIT) {
-                const showMoreBtn = document.createElement('button');
-                showMoreBtn.className = 'show-more-btn';
-                showMoreBtn.textContent = `+ ${bookmarks.length - BOOKMARK_LIMIT} more`;
+            const titleEl = document.createElement('div');
+            titleEl.className = 'category-title';
+            titleEl.textContent = title;
+            column.appendChild(titleEl);
 
-                showMoreBtn.addEventListener('click', () => {
-                    showMoreBtn.remove();
-                    bookmarks.slice(BOOKMARK_LIMIT).forEach(bookmark => {
-                        container.appendChild(createBookmarkItem(bookmark, false));
-                    });
-                }, { once: true });
+            const renderItems = (limit) => {
+                column.querySelectorAll('.bookmark-item, .show-more-btn, .show-less-btn').forEach(el => el.remove());
 
-                container.appendChild(showMoreBtn);
-            }
+                bookmarks.slice(0, limit).forEach(bookmark => {
+                    column.appendChild(createBookmarkItem(bookmark, false));
+                });
+
+                if (bookmarks.length > limit) {
+                    const showMoreBtn = document.createElement('button');
+                    showMoreBtn.className = 'show-more-btn';
+                    showMoreBtn.textContent = `+ ${bookmarks.length - limit} more`;
+                    showMoreBtn.addEventListener('click', () => renderItems(bookmarks.length));
+                    column.appendChild(showMoreBtn);
+                } else if (limit > BOOKMARK_LIMIT) {
+                    const showLessBtn = document.createElement('button');
+                    showLessBtn.className = 'show-less-btn';
+                    showLessBtn.textContent = `- Show less`;
+                    showLessBtn.addEventListener('click', () => renderItems(BOOKMARK_LIMIT));
+                    column.appendChild(showLessBtn);
+                }
+            };
+
+            renderItems(BOOKMARK_LIMIT);
+            return column;
         };
 
-        // Handle bookmarks without a category (in the root of the app folder)
+        // Handle general bookmarks
         const generalBookmarks = appFolder.children.filter(child => child.url && !pinnedBookmarkIds.has(child.id));
         if (generalBookmarks.length > 0) {
-            const generalColumn = document.createElement('div');
-            generalColumn.className = 'category-column';
-            const generalTitle = document.createElement('div');
-            generalTitle.className = 'category-title';
-            generalTitle.textContent = 'General';
-            generalColumn.appendChild(generalTitle);
-
-            processCategory(generalBookmarks, 'General', generalColumn);
-            bookmarksContainer.appendChild(generalColumn);
+            bookmarksContainer.appendChild(renderCategoryColumn(generalBookmarks, 'General'));
         }
 
         // Handle categorized bookmarks
         appFolder.children.filter(child => !child.url).forEach(categoryNode => {
-            const categoryColumn = document.createElement('div');
-            categoryColumn.className = 'category-column';
-
-            const categoryTitle = document.createElement('div');
-            categoryTitle.className = 'category-title';
-            categoryTitle.textContent = categoryNode.title;
-            categoryColumn.appendChild(categoryTitle);
-
             const bookmarks = (categoryNode.children || []).filter(child => child.url && !pinnedBookmarkIds.has(child.id));
             if (bookmarks.length > 0) {
-                processCategory(bookmarks, categoryNode.title, categoryColumn);
-            }
-
-            if (categoryColumn.children.length > 1) {
-                bookmarksContainer.appendChild(categoryColumn);
+                bookmarksContainer.appendChild(renderCategoryColumn(bookmarks, categoryNode.title));
             }
         });
     });
