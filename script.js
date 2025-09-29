@@ -148,10 +148,17 @@ document.addEventListener('DOMContentLoaded', function() {
     tooltip.style.display = 'none';
   }
 
-  function applyFontColor() {
-      chrome.storage.sync.get('fontColor', data => {
+  function applyColorSettings() {
+      const colorKeys = ['fontColor', 'sectionTitleColor', 'categoryTitleColor'];
+      chrome.storage.sync.get(colorKeys, data => {
           if (data.fontColor) {
               document.documentElement.style.setProperty('--main-font-color', data.fontColor);
+          }
+          if (data.sectionTitleColor) {
+              document.documentElement.style.setProperty('--section-title-color', data.sectionTitleColor);
+          }
+          if (data.categoryTitleColor) {
+              document.documentElement.style.setProperty('--category-title-color', data.categoryTitleColor);
           }
       });
   }
@@ -168,5 +175,5 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   loadPinnedBookmarksAndDisplay();
-  applyFontColor();
+  applyColorSettings();
 });

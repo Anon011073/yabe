@@ -69,3 +69,22 @@ button:hover {
 .item-actions button.edit-btn {
   background-color: #50fa7b;
 }
+
+.color-picker-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.color-picker-group label {
+  margin-right: 1rem;
+  width: 150px;
+}
+
+.color-picker-group input[type="color"] {
+  width: 50px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+}

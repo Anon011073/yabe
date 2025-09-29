@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadAll() {
     await loadCategories();
     loadBookmarks();
-    loadFontColor();
+    loadColorSettings();
   }
 
   // --- Category Functions ---
@@ -225,22 +225,89 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // --- Font Color Functions ---
-  function loadFontColor() {
-      chrome.storage.sync.get('fontColor', data => {
-          if (data.fontColor) {
-              fontColorPicker.value = data.fontColor;
-          }
+  // --- Color Settings Functions ---
+  const colorSettingsForm = document.getElementById('color-settings-form');
+  const sectionTitleColorPicker = document.getElementById('section-title-color-picker');
+  const categoryTitleColorPicker = document.getElementById('category-title-color-picker');
+
+  function loadColorSettings() {
+      const colorKeys = ['fontColor', 'sectionTitleColor', 'categoryTitleColor'];
+      chrome.storage.sync.get(colorKeys, data => {
+          if (data.fontColor) fontColorPicker.value = data.fontColor;
+          if (data.sectionTitleColor) sectionTitleColorPicker.value = data.sectionTitleColor;
+          if (data.categoryTitleColor) categoryTitleColorPicker.value = data.categoryTitleColor;
       });
   }
 
-  fontColorForm.addEventListener('submit', e => {
+  colorSettingsForm.addEventListener('submit', e => {
       e.preventDefault();
-      const color = fontColorPicker.value;
-      chrome.storage.sync.set({ fontColor: color }, () => {
-          alert('Font color saved!');
+      const colors = {
+        fontColor: fontColorPicker.value,
+        sectionTitleColor: sectionTitleColorPicker.value,
+        categoryTitleColor: categoryTitleColorPicker.value
+      };
+      chrome.storage.sync.set(colors, () => {
+          alert('Color settings saved!');
       });
   });
+
+  // --- Import Functions ---
+  const importBookmarksBtn = document.getElementById('import-bookmarks-btn');
+
+  /**
+   * Recursively imports bookmarks from a source node to a destination parent folder.
+   * @param {BookmarkTreeNode} sourceNode The node to import from.
+   * @param {string} destinationParentId The ID of the folder to import into.
+   */
+  async function importBookmarksRecursive(sourceNode, destinationParentId) {
+    // If it's a folder with children, create it and recurse
+    if (sourceNode.children) {
+      // Don't re-import the main dashboard folder itself
+      if (sourceNode.title === DASHBOARD_FOLDER_NAME) {
+        return;
+      }
+
+      const newFolder = await new Promise(resolve => {
+        chrome.bookmarks.create({ parentId: destinationParentId, title: sourceNode.title || "Untitled Folder" }, resolve);
+      });
+
+      for (const child of sourceNode.children) {
+        await importBookmarksRecursive(child, newFolder.id);
+      }
+    }
+    // If it's a bookmark, create it
+    else if (sourceNode.url) {
+      await new Promise(resolve => {
+        chrome.bookmarks.create({ parentId: destinationParentId, title: sourceNode.title, url: sourceNode.url }, resolve);
+      });
+    }
+  }
+
+  importBookmarksBtn.addEventListener('click', async () => {
+    if (confirm("This will import all bookmarks from your Bookmarks Bar into the dashboard. This may create duplicates if you've already added some. Continue?")) {
+      try {
+        importBookmarksBtn.textContent = "Importing...";
+        importBookmarksBtn.disabled = true;
+
+        const appFolder = await getDashboardFolder();
+        const bookmarksBarTree = await new Promise(resolve => chrome.bookmarks.getSubTree('1', resolve));
+
+        for (const node of bookmarksBarTree[0].children) {
+            await importBookmarksRecursive(node, appFolder.id);
+        }
+
+        alert("Import complete!");
+        loadAll(); // Reload everything to show the new data
+      } catch (error) {
+        console.error("Bookmark import failed:", error);
+        alert("Bookmark import failed. See the console for details.");
+      } finally {
+        importBookmarksBtn.textContent = "Import Now";
+        importBookmarksBtn.disabled = false;
+      }
+    }
+  });
+
 
   // --- Initial Load ---
   loadAll();

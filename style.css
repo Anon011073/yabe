@@ -2,7 +2,8 @@
   --main-bg-color: #282a36;
   --main-font-color: #f8f8f2;
   --container-bg-color: #44475a;
-  --accent-color: #50fa7b;
+  --section-title-color: #50fa7b;
+  --category-title-color: #bd93f9;
   --hover-color: #6272a4;
 }
 
@@ -34,7 +35,7 @@ body {
 }
 
 #search-engine {
-  background: transparent;
+  background-color: var(--container-bg-color);
   color: var(--main-font-color);
   border: none;
   padding: 0.5rem 1rem;
@@ -45,6 +46,12 @@ body {
   appearance: none;
 }
 
+/* Style for dropdown options */
+#search-engine option {
+  background: var(--container-bg-color);
+  color: var(--main-font-color);
+}
+
 #search-input {
   background: transparent;
   color: var(--main-font-color);
@@ -53,6 +60,16 @@ body {
   width: 500px;
   font-size: 1rem;
 }
+
+/* Override browser autofill styles */
+#search-input:-webkit-autofill,
+#search-input:-webkit-autofill:hover,
+#search-input:-webkit-autofill:focus,
+#search-input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--container-bg-color) inset !important;
+    -webkit-text-fill-color: var(--main-font-color) !important;
+}
+
 #search-input:focus {
   outline: none;
 }
@@ -62,7 +79,7 @@ body {
 }
 
 .bookmarks-section h2 {
-    color: var(--accent-color);
+    color: var(--section-title-color);
     margin-bottom: 1.5rem;
     font-weight: 500;
     text-transform: uppercase;
@@ -83,7 +100,7 @@ body {
 
 .category-title {
     font-weight: bold;
-    color: #bd93f9; /* A different accent for categories */
+    color: var(--category-title-color);
     margin-bottom: 0.5rem;
 }
 
@@ -111,8 +128,8 @@ body {
 
 .pin-btn {
     background: transparent;
-    border: 1px solid var(--accent-color);
-    color: var(--accent-color);
+    border: 1px solid var(--section-title-color);
+    color: var(--section-title-color);
     cursor: pointer;
     padding: 2px 6px;
     border-radius: 4px;
