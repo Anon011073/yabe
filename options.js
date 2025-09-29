@@ -27,17 +27,21 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   function getDashboardFolder() {
     return new Promise((resolve, reject) => {
-      chrome.bookmarks.getTree(tree => {
-        const bookmarksBar = tree[0].children.find(node => node.title === "Bookmarks Bar");
-        if (!bookmarksBar) return reject("Bookmarks Bar not found.");
+      // The Bookmarks Bar is always folder '1'. We get its sub-tree to find our dashboard folder.
+      chrome.bookmarks.getSubTree('1', (results) => {
+        if (chrome.runtime.lastError || !results || results.length === 0) {
+          return reject("Could not access the Bookmarks Bar: " + (chrome.runtime.lastError?.message || 'Unknown error'));
+        }
 
-        let appFolder = bookmarksBar.children.find(node => node.title === DASHBOARD_FOLDER_NAME);
+        const bookmarksBarNode = results[0];
+        const appFolder = bookmarksBarNode.children.find(node => node.title === DASHBOARD_FOLDER_NAME);
 
         if (appFolder) {
           dashboardFolderId = appFolder.id;
           resolve(appFolder);
         } else {
-          chrome.bookmarks.create({ parentId: bookmarksBar.id, title: DASHBOARD_FOLDER_NAME }, newFolder => {
+          // If it doesn't exist, create it inside the Bookmarks Bar.
+          chrome.bookmarks.create({ parentId: '1', title: DASHBOARD_FOLDER_NAME }, newFolder => {
             dashboardFolderId = newFolder.id;
             resolve(newFolder);
           });

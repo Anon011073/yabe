@@ -67,11 +67,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Render categorized bookmarks
-    chrome.bookmarks.getTree(tree => {
-        const bookmarksBar = tree[0].children.find(node => node.title === "Bookmarks Bar");
-        if (!bookmarksBar) return;
+    chrome.bookmarks.getSubTree('1', (results) => {
+        if (chrome.runtime.lastError || !results || results.length === 0) {
+          console.error("Could not access the Bookmarks Bar: " + (chrome.runtime.lastError?.message || 'Unknown error'));
+          return;
+        }
 
-        const appFolder = bookmarksBar.children.find(node => node.title === DASHBOARD_FOLDER_NAME);
+        const bookmarksBarNode = results[0];
+        const appFolder = bookmarksBarNode.children.find(node => node.title === DASHBOARD_FOLDER_NAME);
         if (!appFolder || !appFolder.children) return;
 
         // Handle bookmarks without a category (in the root of the app folder)
