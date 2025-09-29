@@ -17,6 +17,9 @@
       <div class="main-content-header">
         <h2 id="current-folder-name">Bookmarks</h2>
         <div class="actions-toolbar">
+        <button id="new-category-btn">New Category</button>
+        <button id="new-bookmark-btn">New Bookmark</button>
+        <span class="separator">|</span>
           <button id="select-all-btn">Select All</button>
           <button id="edit-btn" disabled>Edit</button>
           <button id="delete-btn" disabled>Delete</button>
@@ -27,6 +30,45 @@
       </div>
     </div>
   </div>
+
+  <div id="edit-modal-overlay" class="hidden">
+    <div id="edit-modal">
+      <h2 id="edit-modal-title">Edit Bookmark</h2>
+      <form id="edit-form">
+        <input type="hidden" id="edit-bookmark-id">
+        <div class="form-group">
+          <label for="edit-bookmark-title">Title</label>
+          <input type="text" id="edit-bookmark-title" required>
+        </div>
+        <div class="form-group">
+          <label for="edit-bookmark-url">URL</label>
+          <input type="url" id="edit-bookmark-url" required>
+        </div>
+        <div class="modal-actions">
+          <button type="submit">Save Changes</button>
+          <button type="button" id="cancel-edit-btn">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="folder-modal-overlay" class="hidden">
+      <div id="folder-modal">
+        <h2 id="folder-modal-title">New Category</h2>
+        <form id="folder-form">
+          <input type="hidden" id="edit-folder-id">
+          <div class="form-group">
+            <label for="folder-name-input">Name</label>
+            <input type="text" id="folder-name-input" required>
+          </div>
+          <div class="modal-actions">
+            <button type="submit">Save</button>
+            <button type="button" id="cancel-folder-btn">Cancel</button>
+          </div>
+        </form>
+      </div>
+  </div>
+
   <script src="manager.js"></script>
 </body>
 </html>

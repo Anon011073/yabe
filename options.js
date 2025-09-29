@@ -3,129 +3,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const DASHBOARD_FOLDER_NAME = "Dashboard Bookmarks";
 
   // --- Element Selectors ---
-  const addBookmarkForm = document.getElementById('add-bookmark-form');
-  const bookmarkTitleInput = document.getElementById('bookmark-title');
-  const bookmarkUrlInput = document.getElementById('bookmark-url');
-  const bookmarkCategorySelect = document.getElementById('bookmark-category-select');
   const openManagerBtn = document.getElementById('open-manager-btn');
 
-  const addCategoryForm = document.getElementById('add-category-form');
-  const categoryNameInput = document.getElementById('category-name');
-  const categoriesManagementList = document.getElementById('categories-management-list');
-
-  // --- State ---
-  let dashboardFolderId = null;
-
-  // --- Helper Functions ---
-  function getDashboardFolder() {
-    return new Promise((resolve, reject) => {
-      chrome.bookmarks.getSubTree('1', (results) => {
-        if (chrome.runtime.lastError || !results || results.length === 0) {
-          return reject("Could not access the Bookmarks Bar: " + (chrome.runtime.lastError?.message || 'Unknown error'));
-        }
-        const bookmarksBarNode = results[0];
-        const appFolder = bookmarksBarNode.children.find(node => node.title === DASHBOARD_FOLDER_NAME);
-
-        if (appFolder) {
-          dashboardFolderId = appFolder.id;
-          resolve(appFolder);
-        } else {
-          chrome.bookmarks.create({ parentId: '1', title: DASHBOARD_FOLDER_NAME }, newFolder => {
-            dashboardFolderId = newFolder.id;
-            resolve(newFolder);
-          });
-        }
-      });
-    });
-  }
-
   // --- Main Functions ---
-  async function loadAll() {
-    await loadCategories();
+  function loadAll() {
     loadColorSettings();
   }
 
-  // --- Category Functions ---
-  async function loadCategories() {
-    categoriesManagementList.innerHTML = '';
-    bookmarkCategorySelect.innerHTML = '';
-
-    try {
-      const appFolder = await getDashboardFolder();
-
-      const defaultOption = document.createElement('option');
-      defaultOption.value = appFolder.id;
-      defaultOption.textContent = "No Category";
-      bookmarkCategorySelect.appendChild(defaultOption);
-
-      (appFolder.children || []).filter(child => !child.url).forEach(addCategoryOption);
-    } catch (error) {
-      console.error("Error loading categories:", error);
-    }
-  }
-
-  function addCategoryOption(categoryNode) {
-      const option = document.createElement('option');
-      option.value = categoryNode.id;
-      option.textContent = categoryNode.title;
-      bookmarkCategorySelect.appendChild(option);
-
-      const categoryItem = document.createElement('div');
-      categoryItem.className = 'category-item';
-      categoryItem.innerHTML = `
-        <span>${categoryNode.title}</span>
-        <div class="item-actions">
-          <button class="delete-btn" data-id="${categoryNode.id}">Delete</button>
-        </div>
-      `;
-      categoriesManagementList.appendChild(categoryItem);
-  }
-
-  addCategoryForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const categoryName = categoryNameInput.value.trim();
-    if (!categoryName) return;
-
-    try {
-      const appFolder = await getDashboardFolder();
-      chrome.bookmarks.create({ parentId: appFolder.id, title: categoryName }, () => {
-          categoryNameInput.value = '';
-          loadCategories();
-      });
-    } catch (error) {
-      console.error("Could not create category:", error);
-    }
-  });
-
-  categoriesManagementList.addEventListener('click', e => {
-    if (e.target.classList.contains('delete-btn')) {
-      const categoryId = e.target.dataset.id;
-      if (confirm('Are you sure you want to delete this category and all its bookmarks?')) {
-        chrome.bookmarks.removeTree(categoryId, () => {
-          loadAll();
-        });
-      }
-    }
-  });
-
-  // --- Bookmark Functions ---
-  addBookmarkForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const title = bookmarkTitleInput.value.trim();
-    const url = bookmarkUrlInput.value.trim();
-    const categoryId = bookmarkCategorySelect.value;
-    if (!title || !url) return;
-
-    chrome.bookmarks.create({
-      parentId: categoryId,
-      title: title,
-      url: url
-    }, () => {
-      addBookmarkForm.reset();
-      alert(`Bookmark "${title}" added!`);
-    });
-  });
-
+  // --- Bookmark/Manager Functions ---
   openManagerBtn.addEventListener('click', () => {
     chrome.tabs.create({ url: 'manager.html' });
   });
@@ -187,6 +72,27 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Import Functions ---
   const importBookmarksBtn = document.getElementById('import-bookmarks-btn');
 
+  // Helper function to get the dashboard folder
+  function getDashboardFolder() {
+    return new Promise((resolve, reject) => {
+      chrome.bookmarks.getSubTree('1', (results) => {
+        if (chrome.runtime.lastError || !results || results.length === 0) {
+          return reject("Could not access the Bookmarks Bar: " + (chrome.runtime.lastError?.message || 'Unknown error'));
+        }
+        const bookmarksBarNode = results[0];
+        const appFolder = bookmarksBarNode.children.find(node => node.title === DASHBOARD_FOLDER_NAME);
+
+        if (appFolder) {
+          resolve(appFolder);
+        } else {
+          chrome.bookmarks.create({ parentId: '1', title: DASHBOARD_FOLDER_NAME }, newFolder => {
+            resolve(newFolder);
+          });
+        }
+      });
+    });
+  }
+
   async function importBookmarksRecursive(sourceNode, destinationParentId) {
     if (sourceNode.children) {
       if (sourceNode.title === DASHBOARD_FOLDER_NAME) return;
@@ -219,8 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await importBookmarksRecursive(node, appFolder.id);
         }
 
-        alert("Import complete!");
-        loadAll();
+        alert("Import complete! You can now view and manage your imported bookmarks in the Bookmark Manager.");
       } catch (error) {
         console.error("Bookmark import failed:", error);
         alert("Bookmark import failed. See the console for details.");
@@ -233,19 +138,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Reset Functions ---
   const clearBookmarksBtn = document.getElementById('clear-bookmarks-btn');
+  const clearCacheBtn = document.getElementById('clear-cache-btn');
   const resetAllBtn = document.getElementById('reset-all-btn');
 
   async function clearDashboardBookmarks() {
     if (confirm("Are you sure you want to delete all bookmarks and categories from the dashboard? This cannot be undone.")) {
       try {
         const appFolder = await getDashboardFolder();
-        if (appFolder.children) {
+        if (appFolder && appFolder.children) {
           for (const child of appFolder.children) {
             await new Promise(resolve => chrome.bookmarks.removeTree(child.id, resolve));
           }
         }
         alert("Dashboard bookmarks cleared.");
-        loadAll();
       } catch (error) {
         console.error("Failed to clear bookmarks:", error);
         alert("Failed to clear bookmarks. See console for details.");
@@ -259,12 +164,24 @@ document.addEventListener('DOMContentLoaded', () => {
       chrome.storage.sync.clear(() => console.log("Sync storage cleared."));
       chrome.storage.local.clear(() => console.log("Local storage cleared."));
       alert("Extension has been reset to default state.");
-      loadAll();
+      loadColorSettings();
     }
   }
 
   clearBookmarksBtn.addEventListener('click', clearDashboardBookmarks);
   resetAllBtn.addEventListener('click', resetAllSettings);
+
+  clearCacheBtn.addEventListener('click', () => {
+    if (confirm("Are you sure you want to clear all cached settings and pinned items? This will not affect your bookmarks.")) {
+      chrome.storage.sync.clear(() => {
+        chrome.storage.local.clear(() => {
+          console.log("Sync and local storage cleared.");
+          alert("Extension cache and pinned items have been cleared.");
+          loadColorSettings(); // Reload default styles
+        });
+      });
+    }
+  });
 
   // --- Initial Load ---
   loadAll();

@@ -9,32 +9,9 @@
     <h1>Settings</h1>
 
     <div class="section">
-      <h2>Add New Bookmark</h2>
-      <form id="add-bookmark-form">
-        <input type="text" id="bookmark-title" placeholder="Title" required>
-        <input type="url" id="bookmark-url" placeholder="URL" required>
-        <select id="bookmark-category-select"></select>
-        <button type="submit">Add Bookmark</button>
-      </form>
-    </div>
-
-    <div class="section">
-      <h2>Manage Bookmarks</h2>
-      <p>Open the dedicated manager to organize, edit, and delete your dashboard bookmarks.</p>
+      <h2>Manage Dashboard</h2>
+      <p>Open the dedicated manager to add, organize, edit, and delete your dashboard bookmarks and categories.</p>
       <button id="open-manager-btn">Open Bookmark Manager</button>
-    </div>
-
-    <div class="section">
-      <h2>Add New Category</h2>
-      <form id="add-category-form">
-        <input type="text" id="category-name" placeholder="Category Name" required>
-        <button type="submit">Add Category</button>
-      </form>
-    </div>
-
-    <div class="section">
-      <h2>Manage Categories</h2>
-      <div id="categories-management-list"></div>
     </div>
 
     <div class="section">
@@ -76,6 +53,7 @@
       <p>These actions are irreversible. Please be certain.</p>
       <div class="danger-actions">
         <button id="clear-bookmarks-btn" class="danger-btn">Clear Dashboard Bookmarks</button>
+        <button id="clear-cache-btn" class="danger-btn">Clear Cache & Pinned Items</button>
         <button id="reset-all-btn" class="danger-btn">Reset All Settings</button>
       </div>
     </div>
