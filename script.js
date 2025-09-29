@@ -54,6 +54,8 @@ document.addEventListener('DOMContentLoaded', function() {
     bookmarksContainer.innerHTML = '';
     pinnedBookmarksList.innerHTML = '';
 
+    const BOOKMARK_LIMIT = 10;
+
     // Render pinned bookmarks
     const pinnedIds = Array.from(pinnedBookmarkIds);
     if (pinnedIds.length > 0) {
@@ -77,6 +79,27 @@ document.addEventListener('DOMContentLoaded', function() {
         const appFolder = bookmarksBarNode.children.find(node => node.title === DASHBOARD_FOLDER_NAME);
         if (!appFolder || !appFolder.children) return;
 
+        const processCategory = (bookmarks, title, container) => {
+            bookmarks.slice(0, BOOKMARK_LIMIT).forEach(bookmark => {
+                container.appendChild(createBookmarkItem(bookmark, false));
+            });
+
+            if (bookmarks.length > BOOKMARK_LIMIT) {
+                const showMoreBtn = document.createElement('button');
+                showMoreBtn.className = 'show-more-btn';
+                showMoreBtn.textContent = `+ ${bookmarks.length - BOOKMARK_LIMIT} more`;
+
+                showMoreBtn.addEventListener('click', () => {
+                    showMoreBtn.remove();
+                    bookmarks.slice(BOOKMARK_LIMIT).forEach(bookmark => {
+                        container.appendChild(createBookmarkItem(bookmark, false));
+                    });
+                }, { once: true });
+
+                container.appendChild(showMoreBtn);
+            }
+        };
+
         // Handle bookmarks without a category (in the root of the app folder)
         const generalBookmarks = appFolder.children.filter(child => child.url && !pinnedBookmarkIds.has(child.id));
         if (generalBookmarks.length > 0) {
@@ -86,9 +109,8 @@ document.addEventListener('DOMContentLoaded', function() {
             generalTitle.className = 'category-title';
             generalTitle.textContent = 'General';
             generalColumn.appendChild(generalTitle);
-            generalBookmarks.forEach(bookmark => {
-                generalColumn.appendChild(createBookmarkItem(bookmark, false));
-            });
+
+            processCategory(generalBookmarks, 'General', generalColumn);
             bookmarksContainer.appendChild(generalColumn);
         }
 
@@ -102,10 +124,9 @@ document.addEventListener('DOMContentLoaded', function() {
             categoryTitle.textContent = categoryNode.title;
             categoryColumn.appendChild(categoryTitle);
 
-            if (categoryNode.children) {
-                categoryNode.children.filter(child => child.url && !pinnedBookmarkIds.has(child.id)).forEach(bookmark => {
-                    categoryColumn.appendChild(createBookmarkItem(bookmark, false));
-                });
+            const bookmarks = (categoryNode.children || []).filter(child => child.url && !pinnedBookmarkIds.has(child.id));
+            if (bookmarks.length > 0) {
+                processCategory(bookmarks, categoryNode.title, categoryColumn);
             }
 
             if (categoryColumn.children.length > 1) {
@@ -149,8 +170,11 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function applyColorSettings() {
-      const colorKeys = ['fontColor', 'sectionTitleColor', 'categoryTitleColor'];
-      chrome.storage.sync.get(colorKeys, data => {
+      const styleKeys = [
+          'fontColor', 'sectionTitleColor', 'categoryTitleColor',
+          'fontSize', 'sectionTitleSize', 'categoryTitleSize'
+      ];
+      chrome.storage.sync.get(styleKeys, data => {
           if (data.fontColor) {
               document.documentElement.style.setProperty('--main-font-color', data.fontColor);
           }
@@ -159,6 +183,15 @@ document.addEventListener('DOMContentLoaded', function() {
           }
           if (data.categoryTitleColor) {
               document.documentElement.style.setProperty('--category-title-color', data.categoryTitleColor);
+          }
+          if (data.fontSize) {
+              document.documentElement.style.setProperty('--main-font-size', data.fontSize + 'px');
+          }
+          if (data.sectionTitleSize) {
+              document.documentElement.style.setProperty('--section-title-size', data.sectionTitleSize + 'px');
+          }
+          if (data.categoryTitleSize) {
+              document.documentElement.style.setProperty('--category-title-size', data.categoryTitleSize + 'px');
           }
       });
   }

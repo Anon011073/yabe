@@ -46,19 +46,37 @@
         <h2>Color Settings</h2>
         <form id="color-settings-form">
             <div class="color-picker-group">
-              <label for="font-color-picker">Main Font Color:</label>
+              <label for="font-color-picker">Main Font:</label>
               <input type="color" id="font-color-picker" value="#f8f8f2">
+              <input type="number" id="font-size-picker" min="8" max="32" value="16">
+              <span>px</span>
             </div>
             <div class="color-picker-group">
-              <label for="section-title-color-picker">Section Title Color:</label>
+              <label for="section-title-color-picker">Section Titles:</label>
               <input type="color" id="section-title-color-picker" value="#50fa7b">
+              <input type="number" id="section-title-size-picker" min="8" max="32" value="16">
+               <span>px</span>
             </div>
             <div class="color-picker-group">
-              <label for="category-title-color-picker">Category Title Color:</label>
+              <label for="category-title-color-picker">Category Titles:</label>
               <input type="color" id="category-title-color-picker" value="#bd93f9">
+              <input type="number" id="category-title-size-picker" min="8" max="32" value="16">
+               <span>px</span>
             </div>
-            <button type="submit">Save Colors</button>
+            <div class="form-actions">
+              <button type="submit">Save Styles</button>
+              <button type="button" id="reset-styles-btn">Reset to Defaults</button>
+            </div>
         </form>
+    </div>
+
+    <div class="section danger-zone">
+      <h2>Danger Zone</h2>
+      <p>These actions are irreversible. Please be certain.</p>
+      <div class="danger-actions">
+        <button id="clear-bookmarks-btn" class="danger-btn">Clear Dashboard Bookmarks</button>
+        <button id="reset-all-btn" class="danger-btn">Reset All Settings</button>
+      </div>
     </div>
   </div>
   <script src="options.js"></script>

@@ -229,26 +229,53 @@ document.addEventListener('DOMContentLoaded', () => {
   const colorSettingsForm = document.getElementById('color-settings-form');
   const sectionTitleColorPicker = document.getElementById('section-title-color-picker');
   const categoryTitleColorPicker = document.getElementById('category-title-color-picker');
+  const fontSizePicker = document.getElementById('font-size-picker');
+  const sectionTitleSizePicker = document.getElementById('section-title-size-picker');
+  const categoryTitleSizePicker = document.getElementById('category-title-size-picker');
+  const resetStylesBtn = document.getElementById('reset-styles-btn');
+
+  const defaultStyles = {
+      fontColor: '#f8f8f2',
+      sectionTitleColor: '#50fa7b',
+      categoryTitleColor: '#bd93f9',
+      fontSize: '16',
+      sectionTitleSize: '16',
+      categoryTitleSize: '16'
+  };
 
   function loadColorSettings() {
-      const colorKeys = ['fontColor', 'sectionTitleColor', 'categoryTitleColor'];
-      chrome.storage.sync.get(colorKeys, data => {
-          if (data.fontColor) fontColorPicker.value = data.fontColor;
-          if (data.sectionTitleColor) sectionTitleColorPicker.value = data.sectionTitleColor;
-          if (data.categoryTitleColor) categoryTitleColorPicker.value = data.categoryTitleColor;
+      chrome.storage.sync.get(defaultStyles, data => {
+          fontColorPicker.value = data.fontColor;
+          sectionTitleColorPicker.value = data.sectionTitleColor;
+          categoryTitleColorPicker.value = data.categoryTitleColor;
+          fontSizePicker.value = data.fontSize;
+          sectionTitleSizePicker.value = data.sectionTitleSize;
+          categoryTitleSizePicker.value = data.categoryTitleSize;
       });
   }
 
   colorSettingsForm.addEventListener('submit', e => {
       e.preventDefault();
-      const colors = {
+      const styles = {
         fontColor: fontColorPicker.value,
         sectionTitleColor: sectionTitleColorPicker.value,
-        categoryTitleColor: categoryTitleColorPicker.value
+        categoryTitleColor: categoryTitleColorPicker.value,
+        fontSize: fontSizePicker.value,
+        sectionTitleSize: sectionTitleSizePicker.value,
+        categoryTitleSize: categoryTitleSizePicker.value
       };
-      chrome.storage.sync.set(colors, () => {
-          alert('Color settings saved!');
+      chrome.storage.sync.set(styles, () => {
+          alert('Style settings saved!');
       });
+  });
+
+  resetStylesBtn.addEventListener('click', () => {
+    if (confirm("Are you sure you want to reset all style settings to their defaults?")) {
+        chrome.storage.sync.set(defaultStyles, () => {
+            loadColorSettings();
+            alert("Styles have been reset to default.");
+        });
+    }
   });
 
   // --- Import Functions ---
@@ -308,6 +335,48 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+
+  // --- Reset Functions ---
+  const clearBookmarksBtn = document.getElementById('clear-bookmarks-btn');
+  const resetAllBtn = document.getElementById('reset-all-btn');
+
+  /**
+   * Finds the dashboard folder and removes all its children (bookmarks and sub-folders).
+   */
+  async function clearDashboardBookmarks() {
+    if (confirm("Are you sure you want to delete all bookmarks and categories from the dashboard? This cannot be undone.")) {
+      try {
+        const appFolder = await getDashboardFolder();
+        if (appFolder.children) {
+          for (const child of appFolder.children) {
+            await new Promise(resolve => chrome.bookmarks.removeTree(child.id, resolve));
+          }
+        }
+        alert("Dashboard bookmarks cleared.");
+        loadAll(); // Refresh the lists
+      } catch (error) {
+        console.error("Failed to clear bookmarks:", error);
+        alert("Failed to clear bookmarks. See console for details.");
+      }
+    }
+  }
+
+  /**
+   * Clears all extension data, including bookmarks and settings.
+   */
+  async function resetAllSettings() {
+    if (confirm("DANGER: This will delete all dashboard bookmarks, categories, and reset all settings (colors, pinned items). Are you absolutely sure?")) {
+      await clearDashboardBookmarks();
+      chrome.storage.sync.clear(() => console.log("Sync storage cleared."));
+      chrome.storage.local.clear(() => console.log("Local storage cleared."));
+      alert("Extension has been reset to default state.");
+      // Reload to apply default settings visually
+      loadAll();
+    }
+  }
+
+  clearBookmarksBtn.addEventListener('click', clearDashboardBookmarks);
+  resetAllBtn.addEventListener('click', resetAllSettings);
 
   // --- Initial Load ---
   loadAll();

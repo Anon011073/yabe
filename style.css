@@ -5,6 +5,9 @@
   --section-title-color: #50fa7b;
   --category-title-color: #bd93f9;
   --hover-color: #6272a4;
+  --main-font-size: 16px;
+  --section-title-size: 16px;
+  --category-title-size: 16px;
 }
 
 body {
@@ -13,7 +16,7 @@ body {
   font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   margin: 0;
   padding: 4rem;
-  font-size: 16px;
+  font-size: var(--main-font-size);
 }
 
 .container {
@@ -46,7 +49,6 @@ body {
   appearance: none;
 }
 
-/* Style for dropdown options */
 #search-engine option {
   background: var(--container-bg-color);
   color: var(--main-font-color);
@@ -61,7 +63,6 @@ body {
   font-size: 1rem;
 }
 
-/* Override browser autofill styles */
 #search-input:-webkit-autofill,
 #search-input:-webkit-autofill:hover,
 #search-input:-webkit-autofill:focus,
@@ -84,6 +85,7 @@ body {
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 1px;
+    font-size: var(--section-title-size);
 }
 
 .bookmarks-container {
@@ -102,6 +104,7 @@ body {
     font-weight: bold;
     color: var(--category-title-color);
     margin-bottom: 0.5rem;
+    font-size: var(--category-title-size);
 }
 
 .bookmark-item {
@@ -156,12 +159,19 @@ body {
   font-size: 0.9rem;
 }
 
-#settings-link {
+.footer-links {
   position: fixed;
   bottom: 1rem;
   left: 1rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+#settings-link {
   opacity: 0.5;
   transition: opacity 0.2s ease-in-out;
+  display: flex; /* For alignment */
 }
 
 #settings-link:hover {
@@ -172,4 +182,32 @@ body {
   width: 24px;
   height: 24px;
   filter: invert(1);
+}
+
+#manager-link {
+  color: var(--main-font-color);
+  text-decoration: none;
+  font-size: 24px;
+  opacity: 0.5;
+  transition: opacity 0.2s ease-in-out;
+}
+
+#manager-link:hover {
+  opacity: 1;
+}
+
+.show-more-btn {
+  background: transparent;
+  border: none;
+  color: var(--category-title-color);
+  cursor: pointer;
+  padding: 4px;
+  text-align: left;
+  opacity: 0.7;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.show-more-btn:hover {
+  opacity: 1;
 }

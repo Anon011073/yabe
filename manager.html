@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bookmark Dashboard Manager</title>
+  <link rel="stylesheet" type="text/css" href="manager.css">
+</head>
+<body>
+  <div class="manager-container">
+    <div id="sidebar">
+      <div class="sidebar-header">
+        <h2>Folders</h2>
+        <a href="newtab.html" class="home-link">Back to Dashboard</a>
+      </div>
+      <div id="folder-tree"></div>
+    </div>
+    <div id="main-content">
+      <div class="main-content-header">
+        <h2 id="current-folder-name">Bookmarks</h2>
+        <div class="actions-toolbar">
+          <button id="select-all-btn">Select All</button>
+          <button id="edit-btn" disabled>Edit</button>
+          <button id="delete-btn" disabled>Delete</button>
+        </div>
+      </div>
+      <div id="bookmark-list">
+        <!-- Bookmarks will be dynamically inserted here -->
+      </div>
+    </div>
+  </div>
+  <script src="manager.js"></script>
+</body>
+</html>

@@ -88,3 +88,48 @@ button:hover {
   border: none;
   cursor: pointer;
 }
+
+.danger-zone {
+  border: 1px solid #ff5555;
+}
+
+.danger-zone h2 {
+  color: #ff5555;
+}
+
+.danger-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.danger-btn {
+  background-color: #ff5555;
+}
+
+.danger-btn:hover {
+  background-color: #ff79c6;
+}
+
+.color-picker-group input[type="number"] {
+  width: 50px;
+  margin-left: 0.5rem;
+  background-color: #282a36;
+  color: #f8f8f2;
+  border: 1px solid #6272a4;
+  padding: 0.5rem;
+  border-radius: 5px;
+}
+
+.color-picker-group span {
+  margin-left: 0.25rem;
+}
+
+.form-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+}
+
+#reset-styles-btn {
+  background-color: #6272a4;
+}
