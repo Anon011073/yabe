@@ -1,0 +1,71 @@
+body {
+  background-color: #282a36;
+  color: #f8f8f2;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  padding: 2rem;
+  max-width: 800px;
+  margin: auto;
+}
+
+h1, h2 {
+  color: #50fa7b;
+}
+
+.section {
+  background-color: #44475a;
+  padding: 1.5rem;
+  border-radius: 5px;
+  margin-bottom: 2rem;
+}
+
+input[type="text"], input[type="url"], select {
+  background-color: #282a36;
+  color: #f8f8f2;
+  border: 1px solid #6272a4;
+  padding: 0.5rem;
+  border-radius: 5px;
+  margin-right: 0.5rem;
+  width: 200px;
+}
+
+button {
+  background-color: #bd93f9;
+  color: #f8f8f2;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background-color: #ff79c6;
+}
+
+#bookmarks-management-list .bookmark-item,
+#categories-management-list .category-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #6272a4;
+}
+
+#bookmarks-management-list .bookmark-item:last-child,
+#categories-management-list .category-item:last-child {
+  border-bottom: none;
+}
+
+.item-actions button {
+  margin-left: 0.5rem;
+  background-color: #ff5555;
+}
+
+.item-actions button.edit-btn {
+  background-color: #50fa7b;
+}

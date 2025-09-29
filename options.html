@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bookmark Manager Options</title>
+  <link rel="stylesheet" type="text/css" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Settings</h1>
+
+    <div class="section">
+      <h2>Add New Bookmark</h2>
+      <form id="add-bookmark-form">
+        <input type="text" id="bookmark-title" placeholder="Title" required>
+        <input type="url" id="bookmark-url" placeholder="URL" required>
+        <select id="bookmark-category-select"></select>
+        <button type="submit">Add Bookmark</button>
+      </form>
+    </div>
+
+    <div class="section">
+      <h2>Manage Bookmarks</h2>
+      <div id="bookmarks-management-list"></div>
+    </div>
+
+    <div class="section">
+      <h2>Add New Category</h2>
+      <form id="add-category-form">
+        <input type="text" id="category-name" placeholder="Category Name" required>
+        <button type="submit">Add Category</button>
+      </form>
+    </div>
+
+    <div class="section">
+      <h2>Manage Categories</h2>
+      <div id="categories-management-list"></div>
+    </div>
+
+     <div class="section">
+        <h2>Font Color</h2>
+        <form id="font-color-form">
+            <input type="color" id="font-color-picker" value="#f8f8f2">
+            <button type="submit">Save</button>
+        </form>
+    </div>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>
